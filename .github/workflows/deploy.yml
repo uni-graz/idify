@@ -3,7 +3,7 @@ name: Build and Deploy idify
 on:
   push:
     branches:
-      - main  # 如果默认分支是 master，请改成 master
+      - main  # 如果你的默认分支是 master，请改成 master
 
 jobs:
   build-and-deploy:
@@ -26,11 +26,9 @@ jobs:
       # 4. 安装依赖
       - run: pnpm install --frozen-lockfile
 
-      # 5. 构建项目（增加 Node 内存，打印详细日志）
-      - run: |
-          echo "Starting build with increased memory..."
-          node --max-old-space-size=4096 ./node_modules/.bin/pnpm build
-        shell: bash
+      # 5. 构建项目（增加 Node 内存）
+      - name: Build project with increased memory
+        run: node --max-old-space-size=4096 $(which pnpm) build
 
       # 6. 发布到 GitHub Pages
       - uses: peaceiris/actions-gh-pages@v3
