@@ -1,43 +1,39 @@
 name: Build and Deploy idify
 
-# 触发条件：每次 push 到 main 分支时
 on:
   push:
     branches:
-      - main  # 如果你的默认分支是 master，请改成 master
+      - main  # 如果默认分支是 master，请改成 master
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 检出仓库代码
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      # 1. 检出仓库
+      - uses: actions/checkout@v3
 
       # 2. 安装 Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '18'
 
       # 3. 安装 pnpm 官方 Action
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v2
         with:
           version: 8
 
       # 4. 安装依赖
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
-      # 5. 打包项目
-      - name: Build project
-        run: pnpm build
+      # 5. 构建项目（增加 Node 内存，打印详细日志）
+      - run: |
+          echo "Starting build with increased memory..."
+          node --max-old-space-size=4096 ./node_modules/.bin/pnpm build
+        shell: bash
 
       # 6. 发布到 GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
