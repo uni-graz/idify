@@ -1,35 +1,44 @@
-name: Build Static Site
+name: Build IDIFY Static Version
 
+# 手动触发或 push 到 main 分支
 on:
-  workflow_dispatch:   # 允许手动点按钮触发
+  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 1️⃣ 拉取仓库
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      # 2️⃣ 安装 Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: "pnpm"
 
+      # 3️⃣ 安装 pnpm
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Install deps
-        run: pnpm install
+      # 4️⃣ 安装依赖（使用 workspace:* 引用本地包）
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
+      # 5️⃣ 构建项目（生成 dist）
       - name: Build project
         run: pnpm run build
 
-      - name: Upload build files
+      # 6️⃣ 上传 dist 文件夹为 artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: idify-build
-          path: dist
-
+          name: idify-dist
+          path: |
+            packages/web/dist
