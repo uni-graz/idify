@@ -16,29 +16,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ 安装 Node
+      # 2️⃣ 安装 Node.js 18
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "pnpm"
 
-      # 3️⃣ 安装 pnpm
-      - name: Install pnpm
-        run: npm install -g pnpm
+      # 3️⃣ 安装 pnpm 官方 action
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
-      # 4️⃣ 安装依赖（使用 workspace:* 引用本地包）
+      # 4️⃣ 安装依赖（workspace 本地包支持）
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5️⃣ 构建项目（生成 dist）
-      - name: Build project
-        run: pnpm run build
+      # 5️⃣ 构建 web 项目
+      - name: Build web project
+        run: pnpm --filter @idify/web build
 
       # 6️⃣ 上传 dist 文件夹为 artifact
-      - name: Upload build artifact
+      - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
           name: idify-dist
-          path: |
-            packages/web/dist
+          path: packages/web/dist
